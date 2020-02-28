@@ -6,13 +6,30 @@ import time
 from demo import animations
 from flipdot import client, display
 
+# 9 x 3, 28 x 14 panels
+PANEL_X = 28
+PANEL_Y = 7
+MATRIX_SIZE_X = 1
+MATRIX_SIZE_Y = 8
+MATRIX_X = MATRIX_SIZE_X * PANEL_X
+MATRIX_Y = MATRIX_SIZE_Y * PANEL_Y
 
-d = display.Display(28, 14,
-                    panels={
-                        2: ((0, 0), (28, 7)),
-                        1: ((0, 7), (28, 7)),
-                    })
+def create_display(panel_size, display_size):
+    ret = {}
+    addr = 1
+    cord = [0, 0]
 
+    for x in range(0, display_size[0], panel_size[0]):
+        for y in range(0, display_size[1], panel_size[1]):
+            cord = [x, y]
+            ret[addr] = (cord, panel_size)
+            addr += 1
+
+    print(ret)
+    return ret
+
+
+d = display.Display(MATRIX_X, MATRIX_Y, create_display((PANEL_X, PANEL_Y), (MATRIX_X, MATRIX_Y)))
 
 def transition(d):
     animations.rand(d)
@@ -35,6 +52,8 @@ def mainloop(d):
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "udp":
         d.connect(client.UDPClient("localhost", 9999))
+    elif len(sys.argv) > 1 and sys.argv[1] == "tcp":
+        d.connect(client.TCPClient("localhost", 9999))
     else:
         d.connect(client.SerialClient('/dev/ttyUSB1'))
     try:

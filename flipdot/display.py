@@ -4,6 +4,7 @@
 
 from __future__ import print_function
 from PIL import Image, ImageDraw
+from flipdot import client as c
 
 
 #
@@ -41,14 +42,15 @@ class Display(object):
         Connect a display to a client
         """
         self.client = client
-        self.client.open()
+        if (self.client.kind != c.CHAN_TCP):
+            self.client.open()
 
     def disconnect(self):
         """
         Disconnect the client from this display
         """
         if self.client:
-            self.client.close()
+            if self.client.kind != c.CHAN_TCP: self.client.close()
         self.client = None
 
     def reset(self, address=None, white=False):
@@ -76,7 +78,7 @@ class Display(object):
         (xs, ys), (w, h) = self.panels[address]
         result = bytearray()
         for x in range(xs, xs + w):
-            if h is not 7:
+            if h != 7:
                 print("H is not 7!!!!")
             b = 0
             for y in range(h-1, -1, -1):

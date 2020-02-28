@@ -8,7 +8,7 @@ import socket
 
 import serial
 
-CHAN_UDP, CHAN_SERIAL = range(2)
+CHAN_TCP, CHAN_UDP, CHAN_SERIAL = range(3)
 
 
 class Client(object):
@@ -24,13 +24,13 @@ class Client(object):
         return bytearray([0x80, msg, screen_id]) + data + bytearray([0x8F])
 
     def open(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def close(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def send(self, screen_id, data, refresh=True):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class UDPClient(Client):
@@ -49,6 +49,28 @@ class UDPClient(Client):
         b = self.format_message(screen_id, data, refresh)
         self.sock.sendall(b)
 
+class TCPClient(Client):
+    def __init__(self, host, port):
+        self.addr = (host, port)
+        self.kind = CHAN_TCP
+
+    # socket open/closed on send as no message length/delimiter provided
+    def open(self):
+        pass
+
+    def close(self):
+        pass
+
+    def send(self, screen_id, data, refresh=True):
+        b = self.format_message(screen_id, data, refresh)
+        # create socket for packet
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.connect(self.addr)
+        # send all the data then close
+        try:
+            self.sock.sendall(b)
+        finally:
+            self.sock.close()
 
 class SerialClient(Client):
     def __init__(self, port):

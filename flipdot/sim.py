@@ -24,14 +24,10 @@ RefreshRate = 0.2
 sim = None
 stdscr = None
 
-
-class UDPHandler(socketserver.BaseRequestHandler):
+class Handler(socketserver.BaseRequestHandler):
 
     def handle(self):
-        data = self.request[0]
-        data = self.validate(data)
-        if data:
-            self.update_display(data)
+        pass
 
     def validate(self, raw):
         if sys.version_info.major == 2:
@@ -67,14 +63,39 @@ class UDPHandler(socketserver.BaseRequestHandler):
         # print("SIM", address, len(body), list(body))
         sim.update(address, body)
 
+class TCPHandler(Handler):
+
+    def handle(self):
+        try:
+            data = self.request.recv(1024).strip()
+            data = self.validate(data)
+            if data:
+                self.update_display(data)
+        finally:
+            self.request.close()
+
+class UDPHandler(Handler):
+
+    def handle(self):
+        data = self.request[0]
+        data = self.validate(data)
+        if data:
+            self.update_display(data)
 
 class ThreadedUDPServer(socketserver.ThreadingMixIn, socketserver.UDPServer):
     pass
 
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    pass
+
 
 def start_server():
-    HOST, PORT = "localhost", 9999
-    server = ThreadedUDPServer((HOST, PORT), UDPHandler)
+    if len(sys.argv) > 1:
+        HOST, PORT = "localhost", int(sys.argv[1])
+    else:
+        HOST, PORT = "localhost", 9999
+    # server = ThreadedUDPServer((HOST, PORT), UDPHandler)
+    server = ThreadedTCPServer((HOST, PORT), TCPHandler)
     ip, port = server.server_address
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.daemon = True
@@ -125,7 +146,7 @@ class DisplaySim(threading.Thread):
         # update the internal image from the given list of bytes
         (xs, ys), (w, h) = self.d.panels[address]
         n = Image.new("RGB", (w, h))
-        if h is not 7:
+        if h != 7:
             print("H is not 7!!!")
         for x in range(w):
             # get the next byte
@@ -149,13 +170,10 @@ def stop_curses():
     curses.echo()
     curses.endwin()
 
+PANELS = {1: ([0, 0], (28, 7)), 2: ([0, 7], (28, 7)), 3: ([0, 14], (28, 7)), 4: ([0, 21], (28, 7)), 5: ([0, 28], (28, 7)), 6: ([0, 35], (28, 7)), 7: ([0, 42], (28, 7)), 8: ([0, 49], (28, 7))}
 
 if __name__ == "__main__":
-    sim = DisplaySim(28, 14,
-                     panels={
-                         2: ((0, 0), (28, 7)),
-                         1: ((0, 7), (28, 7)),
-                        })
+    sim = DisplaySim(28, 56,PANELS)
     try:
         init_curses()
         sim.start()
