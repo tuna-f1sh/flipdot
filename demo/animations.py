@@ -122,7 +122,7 @@ def wipe_down(d):
     for y in range(1, h+1):
         draw = ImageDraw.Draw(d.im)
         xy = (0, 0)
-        sz = (28, y)
+        sz = (w, y)
         draw.rectangle([xy, sz], fill=(255, 255, 255))
         del draw
         d.send()

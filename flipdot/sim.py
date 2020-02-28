@@ -73,6 +73,7 @@ class TCPHandler(Handler):
                 self.update_display(data)
         finally:
             self.request.close()
+            pass
 
 class UDPHandler(Handler):
 
@@ -94,8 +95,8 @@ def start_server():
         HOST, PORT = "localhost", int(sys.argv[1])
     else:
         HOST, PORT = "localhost", 9999
-    # server = ThreadedUDPServer((HOST, PORT), UDPHandler)
-    server = ThreadedTCPServer((HOST, PORT), TCPHandler)
+    server = ThreadedUDPServer((HOST, PORT), UDPHandler)
+    # server = ThreadedTCPServer((HOST, PORT), TCPHandler)
     ip, port = server.server_address
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.daemon = True
@@ -127,7 +128,7 @@ class DisplaySim(threading.Thread):
         px = self.d.im.load()
         w, h = self.d.im.size
         r = w*2+3
-        onoff = {True: " *", False: "  "}
+        onoff = {True: " ●", False: " ○"}
         stdscr.addstr(0, 1, "-"*r)
         stdscr.addstr(h+1, 1, "-"*r)
         for y in range(h):
@@ -135,7 +136,7 @@ class DisplaySim(threading.Thread):
             stdscr.addstr(y+1, r+1, "|")
             for x in range(w):
                 v = self.d.px_to_bit(px[x, y])
-                stdscr.addstr(y+1, 3+x*2, onoff[v])
+                stdscr.addstr(y+1, 2+x*2, onoff[v])
         stdscr.refresh()
 
     def refresh(self, address=None):
@@ -173,7 +174,7 @@ def stop_curses():
 PANELS = {1: ([0, 0], (28, 7)), 2: ([0, 7], (28, 7)), 3: ([0, 14], (28, 7)), 4: ([0, 21], (28, 7)), 5: ([0, 28], (28, 7)), 6: ([0, 35], (28, 7)), 7: ([0, 42], (28, 7)), 8: ([0, 49], (28, 7))}
 
 if __name__ == "__main__":
-    sim = DisplaySim(28, 56,PANELS)
+    sim = DisplaySim(28, 56, PANELS)
     try:
         init_curses()
         sim.start()

@@ -91,3 +91,46 @@ class Display(object):
         (r, g, b) = px
         p = 1 if (r+g+b) > 400 else 0
         return p
+
+
+class MultiDisplay(object):
+    """
+    A display made up of multiple 'Display' objects, allowing multi client
+    rendering via an inverse mux
+    """
+
+    def __init__(self, w, h, displays: Display):
+        """
+        Construct a multi display of given width and height from supplied
+        ordered displays.
+
+        Keyword arguments:
+        w -- the inverse mux display width (should be total width of all
+        provided displays)
+        h -- the inverse mux display height (should be total height of all
+        provided displays)
+        displays -- dictionary of displays with key:
+        ID -> ((x, y), Display))
+        """
+        self.im = Image.new("RGB", (w, h))
+        self.displays = displays
+
+    def send(self, refresh=True):
+        for dID in self.displays:
+            xy, disp = self.displays[dID]
+            sz = (xy[0] + disp.im.size[0], xy[1] + disp.im.size[1])
+            portion = rot.crop(box=(xy[0], xy[1], sz[0], sz[1]))
+            disp.im.paste(portion)
+            disp.send(refresh)
+
+    def reset(self, display=None, white=False):
+        draw = ImageDraw.Draw(self.im)
+        if display:
+            xy, disp = self.displays[display]
+            sz = (xy[0] + disp.im.size[0], xy[1] + disp.im.size[1])
+        else:
+            xy, sz = (0, 0), self.im.size
+        c = (255,255,255) if white else (0, 0, 0)
+        draw.rectangle([xy, sz], fill=c)
+        del draw
+
