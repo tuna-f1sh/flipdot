@@ -15,7 +15,7 @@ if sys.version_info.major == 2:
 else:
     import socketserver
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 import display
 
@@ -105,12 +105,13 @@ def start_server():
 
 class DisplaySim(threading.Thread):
 
-    def __init__(self, w, h, panels=None):
+    def __init__(self, w, h, panels=None, portrait=False):
         super(DisplaySim, self).__init__()
         self.d = display.Display(w, h, panels)
         self.l = threading.RLock()
         self.frames = 0
         self._stop = threading.Event()
+        self.portrait = portrait
 
     def stop(self):
         self._stop.set()
@@ -158,7 +159,17 @@ class DisplaySim(threading.Thread):
                 if px:
                     n.putpixel((x, y), (255, 255, 255))
         with self.l:
-            self.d.im.paste(n, (xs, ys))
+            if (self.portrait):
+                n = n.rotate(angle=-90, expand=1)
+                x = ImageOps.mirror(n)
+                # n = n.tranpose(Image.FLIP_LEFT_RIGHT)
+                # self.d.im.paste(n, box=(ys, xs))
+                # sz = (ys + h, xs + w)
+                # ix, iy = self.d.size
+                self.d.im.paste(x, box=(ys, xs))
+            else:
+                self.d.im.paste(n, box=(xs, ys))
+
 
 
 def init_curses():
@@ -171,7 +182,10 @@ def stop_curses():
     curses.echo()
     curses.endwin()
 
+# Need to swap cords and size for flipped sim (no work!)
 PANELS = {1: ([0, 0], (28, 7)), 2: ([0, 7], (28, 7)), 3: ([0, 14], (28, 7)), 4: ([0, 21], (28, 7)), 5: ([0, 28], (28, 7)), 6: ([0, 35], (28, 7)), 7: ([0, 42], (28, 7)), 8: ([0, 49], (28, 7))}
+# PANELS = {1: ([0, 0], (28, 7)), 2: ([7, 0], (28, 7)), 3: ([14, 0], (28, 7)), 4: ([21, 0], (28, 7)), 5: ([28, 0], (28, 7)), 6: ([35, 0], (28, 7)), 7: ([42, 0], (28, 7)), 8: ([49, 0], (28, 7))}
+
 
 if __name__ == "__main__":
     sim = DisplaySim(28, 56, PANELS)

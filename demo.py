@@ -37,7 +37,13 @@ multi = {
         2: ((0, 56), d2)
         }
 
-d = display.MultiDisplay(28, 56*2, multi)
+clients = {
+        1: client.UDPClient("localhost", 9999),
+        2: client.UDPClient("localhost", 9998)
+        }
+
+# multi display should be aspect ratio of installed, with flip parameter for final send to panel
+d = display.MultiDisplay(56*2, 28, multi, portrait=True)
 
 def transition(d):
     animations.rand(d)
@@ -59,8 +65,9 @@ def mainloop(d):
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "udp":
-        d1.connect(client.UDPClient("localhost", 9999))
-        d2.connect(client.UDPClient("localhost", 9998))
+        # d1.connect(client.UDPClient("localhost", 9999))
+        # d2.connect(client.UDPClient("localhost", 9998))
+        d.connect(clients)
     elif len(sys.argv) > 1 and sys.argv[1] == "tcp":
         d1.connect(client.TCPClient("localhost", 9999))
         d2.connect(client.TCPClient("localhost", 9998))
@@ -69,9 +76,16 @@ def main():
         d2.connect(client.SerialClient('/dev/ttyUSB2'))
     try:
         # intro(d)
+        d.reset(white=True)
         while True:
-            mainloop(d)
-            time.sleep(5)
+            # mainloop(d)
+            animations.scroll_text(d, "This is scrolled text.", font=animations.BigFont)
+            # animations.display_text(d, "YO!")
+            # time.sleep(1)
+            # animations.display_text(d, "hello john", rotate=False)
+            # animations.wipe_down(d)
+            # animations.wipe_right(d)
+            time.sleep(1)
     finally:
         d1.disconnect()
         d2.disconnect()

@@ -27,24 +27,29 @@ BigFont = ImageFont.truetype(rsrc("fonts/VeraBd.ttf"), 15)
 SmallFont = None
 
 
-def scroll_text(d, text, font=BigFont):
+def scroll_text(d, text, font=BigFont, xy=(1,1), rotate=False):
     draw = ImageDraw.Draw(d.im)
     tw, th = draw.textsize(text, font=font)
-    shift = 0 if font == BigFont else -2
-    for x in range(28, 0-tw, -1):
+    for x in range(xy[0], 0-tw, -1):
+        if rotate: d.im = d.im.rotate(angle=90, expand=1)
         d.reset()
-        draw.text((x, 14-th+shift), text, font=font)
+        draw.text((x, xy[1]), text, font=font)
+        if rotate: d.im = d.im.rotate(angle=-90, expand=1)
         d.send()
         time.sleep(0.06)
     del draw
 
 
-def display_text(d, text, font=SmallFont):
+def display_text(d, text, xy=(1,1), font=SmallFont, rotate=False):
+    # rotate so that text is entered with w/h flipped
+    if rotate: d.im = d.im.rotate(angle=90, expand=1)
     draw = ImageDraw.Draw(d.im)
     tw, th = draw.textsize(text, font=font)
     shift = -1 if font == BigFont else -3
     d.reset()
-    draw.text((14-(tw/2), 14-th+shift), text, font=font)
+    draw.text(xy, text, font=font)
+    # now rotate the image back to display format
+    if rotate: d.im = d.im.rotate(angle=-90, expand=1)
     d.send()
     del draw
 
@@ -75,15 +80,15 @@ def animate(disp, i, w, d=1):
 #
 
 def alien_1(d):
-    animate(d, frames1, 19, 1)
+    animate(d, frames1, d.im.size[0], 1)
 
 
 def alien_2(d):
-    animate(d, frames2, 14, -1)
+    animate(d, frames2, d.im.size[0], -1)
 
 
 def gobble(d):
-    animate(d, frames3, 14, 1)
+    animate(d, frames3, d.im.size[0], 1)
 
 
 def dot(d):
