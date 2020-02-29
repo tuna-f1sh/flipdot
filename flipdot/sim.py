@@ -19,8 +19,28 @@ from PIL import Image, ImageOps
 
 import display
 
+import argparse
 
-RefreshRate = 0.2
+parser = argparse.ArgumentParser(description='Run a tui Alfa-Zeta flot-dot simulation')
+parser.add_argument('-P','--protocol', type=str, choices=['tcp', 'udp'],
+                    default='udp',
+                    help='communication protocol to use')
+parser.add_argument('-r','--refresh', type=float, default=0.2,
+                    help='panel refresh rate in seconds')
+parser.add_argument('-p','--port', type=int, default=5000,
+                    help='network port to use on localhost')
+parser.add_argument('-x','--width', type=int, default=28,
+                    help='display width, should be multiple of panel width 28')
+parser.add_argument('-y','--height', type=int, default=14,
+                    help='display height, should be multiple of panel height 7')
+parser.add_argument('--portrait', action='store_true',
+                    help='panels are in portrait orientation so rotate tui for display')
+# TODO
+parser.add_argument('-v','--verbose', action='store_true',
+                    help='enabling verbose debugging output')
+args = parser.parse_args()
+
+RefreshRate = args.refresh
 sim = None
 stdscr = None
 
@@ -57,10 +77,7 @@ class Handler(socketserver.BaseRequestHandler):
 
     def update_display(self, data):
         address = data[2]
-        # if data[1] in (0x82, 0x83, 0x85):
-        #     sim.refresh(address)
         body = data[3:-1]
-        # print("SIM", address, len(body), list(body))
         sim.update(address, body)
 
 class TCPHandler(Handler):
@@ -91,12 +108,13 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 
 def start_server():
-    if len(sys.argv) > 1:
-        HOST, PORT = "localhost", int(sys.argv[1])
+    HOST, PORT = "localhost", args.port
+    if args.protocol == 'tcp':
+        server = ThreadedTCPServer((HOST, PORT), TCPHandler)
+    elif args.protocol == 'udp':
+        server = ThreadedUDPServer((HOST, PORT), UDPHandler)
     else:
-        HOST, PORT = "localhost", 9999
-    server = ThreadedUDPServer((HOST, PORT), UDPHandler)
-    # server = ThreadedTCPServer((HOST, PORT), TCPHandler)
+        raise ValueError('Invalid protocol')
     ip, port = server.server_address
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.daemon = True
@@ -182,13 +200,9 @@ def stop_curses():
     curses.echo()
     curses.endwin()
 
-# Need to swap cords and size for flipped sim (no work!)
-PANELS = {1: ([0, 0], (28, 7)), 2: ([0, 7], (28, 7)), 3: ([0, 14], (28, 7)), 4: ([0, 21], (28, 7)), 5: ([0, 28], (28, 7)), 6: ([0, 35], (28, 7)), 7: ([0, 42], (28, 7)), 8: ([0, 49], (28, 7))}
-# PANELS = {1: ([0, 0], (28, 7)), 2: ([7, 0], (28, 7)), 3: ([14, 0], (28, 7)), 4: ([21, 0], (28, 7)), 5: ([28, 0], (28, 7)), 6: ([35, 0], (28, 7)), 7: ([42, 0], (28, 7)), 8: ([49, 0], (28, 7))}
-
 
 if __name__ == "__main__":
-    sim = DisplaySim(28, 56, PANELS)
+    sim = DisplaySim(args.width, args.height, display.create_display((28, 7), (args.width, args.height)))
     try:
         init_curses()
         sim.start()

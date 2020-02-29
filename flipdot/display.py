@@ -7,6 +7,24 @@ from PIL import Image, ImageDraw
 from flipdot import client as c
 
 
+def create_display(panel_size: tuple, display_size: tuple):
+    """
+    Utility to create panel dict for a given panel_size and display_size
+    Keyword arguments:
+    panel_size -- (w, h) of panel
+    display_size -- (w, h) of display (should be factor of panel_size)
+    """
+    ret = {}
+    addr = 1
+    cord = [0, 0]
+
+    for x in range(0, display_size[0], panel_size[0]):
+        for y in range(0, display_size[1], panel_size[1]):
+            cord = [x, y]
+            ret[addr] = (cord, panel_size)
+            addr += 1
+    return ret
+
 #
 # A flip-dot "display" is a set of individually addressable Panels
 # arranged to form a single large virtual display

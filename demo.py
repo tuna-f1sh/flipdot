@@ -14,23 +14,8 @@ MATRIX_SIZE_Y = 8
 MATRIX_X = MATRIX_SIZE_X * PANEL_X
 MATRIX_Y = MATRIX_SIZE_Y * PANEL_Y
 
-def create_display(panel_size, display_size):
-    ret = {}
-    addr = 1
-    cord = [0, 0]
-
-    for x in range(0, display_size[0], panel_size[0]):
-        for y in range(0, display_size[1], panel_size[1]):
-            cord = [x, y]
-            ret[addr] = (cord, panel_size)
-            addr += 1
-
-    print(ret)
-    return ret
-
-
-d1 = display.Display(MATRIX_X, MATRIX_Y, create_display((PANEL_X, PANEL_Y), (MATRIX_X, MATRIX_Y)))
-d2 = display.Display(MATRIX_X, MATRIX_Y, create_display((PANEL_X, PANEL_Y), (MATRIX_X, MATRIX_Y)))
+d1 = display.Display(MATRIX_X, MATRIX_Y, display.create_display((PANEL_X, PANEL_Y), (MATRIX_X, MATRIX_Y)))
+d2 = display.Display(MATRIX_X, MATRIX_Y, display.create_display((PANEL_X, PANEL_Y), (MATRIX_X, MATRIX_Y)))
 
 multi = {
         1: ((0, 0), d1),
