@@ -23,15 +23,16 @@ p1 = Image.open(rsrc("images/p1.png"))
 p2 = Image.open(rsrc("images/p2.png"))
 frames3 = {0: p1, 1: p1, 2: p2, 3: p2}
 
-BigFont = ImageFont.truetype(rsrc("fonts/VeraBd.ttf"), 15)
+BigFont = ImageFont.truetype(rsrc("fonts/VeraBd.ttf"), 14)
 SmallFont = None
 
 
-def scroll_text(d, text, font=BigFont, xy=(1,1), rotate=False):
+def scroll_text(d, text, font=BigFont, xy=(0,0), rotate=False):
     draw = ImageDraw.Draw(d.im)
-    tw, th = draw.textsize(text, font=font)
+    tw, _ = draw.textsize(text, font=font)
     for x in range(xy[0], 0-tw, -1):
         if rotate: d.im = d.im.rotate(angle=90, expand=1)
+        draw = ImageDraw.Draw(d.im)
         d.reset()
         draw.text((x, xy[1]), text, font=font)
         if rotate: d.im = d.im.rotate(angle=-90, expand=1)
@@ -40,22 +41,26 @@ def scroll_text(d, text, font=BigFont, xy=(1,1), rotate=False):
     del draw
 
 
-def display_text(d, text, xy=(1,1), font=SmallFont, rotate=False):
-    # rotate so that text is entered with w/h flipped
-    if rotate: d.im = d.im.rotate(angle=90, expand=1)
+def display_text(d, text, xy=(0,0), font=SmallFont, rotate=False, autoscroll=True):
     draw = ImageDraw.Draw(d.im)
-    tw, th = draw.textsize(text, font=font)
-    shift = -1 if font == BigFont else -3
-    d.reset()
-    draw.text(xy, text, font=font)
-    # now rotate the image back to display format
-    if rotate: d.im = d.im.rotate(angle=-90, expand=1)
-    d.send()
-    del draw
+    tw, _ = draw.textsize(text, font=font)
+    # rotate so that text is entered with w/h flipped
+    if tw > d.im.size[0] and autoscroll: 
+        del draw
+        scroll_text(d, text, font=font, xy=xy, rotate=rotate)
+    else:
+        if rotate: d.im = d.im.rotate(angle=90, expand=1)
+        draw = ImageDraw.Draw(d.im)
+        d.reset()
+        draw.text(xy, text, font=font)
+        # now rotate the image back to display format
+        if rotate: d.im = d.im.rotate(angle=-90, expand=1)
+        d.send()
+        del draw
 
 
 def blink_text(d, text, n=3):
-    for i in range(n):
+    for _ in range(n):
         display_text(d, text)
         time.sleep(0.5)
         d.reset()

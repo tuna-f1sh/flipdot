@@ -23,8 +23,8 @@ multi = {
         }
 
 clients = {
-        1: client.UDPClient("localhost", 9999),
-        2: client.UDPClient("localhost", 9998)
+        1: client.UDPClient("localhost", 5000),
+        2: client.UDPClient("localhost", 5001)
         }
 
 # multi display should be aspect ratio of installed, with flip parameter for final send to panel
@@ -54,8 +54,8 @@ def main():
         # d2.connect(client.UDPClient("localhost", 9998))
         d.connect(clients)
     elif len(sys.argv) > 1 and sys.argv[1] == "tcp":
-        d1.connect(client.TCPClient("localhost", 9999))
-        d2.connect(client.TCPClient("localhost", 9998))
+        d1.connect(client.TCPClient("localhost", 5000))
+        d2.connect(client.TCPClient("localhost", 5001))
     else:
         d1.connect(client.SerialClient('/dev/ttyUSB1'))
         d2.connect(client.SerialClient('/dev/ttyUSB2'))
@@ -63,11 +63,11 @@ def main():
         # intro(d)
         d.reset(white=True)
         while True:
-            # mainloop(d)
-            animations.scroll_text(d, "This is scrolled text.", font=animations.BigFont)
+            mainloop(d)
+            # animations.scroll_text(d, "This is scrolled text.", font=animations.BigFont)
             # animations.display_text(d, "YO!")
             # time.sleep(1)
-            # animations.display_text(d, "hello john", rotate=False)
+            # animations.display_text(d, "hello\njohn")
             # animations.wipe_down(d)
             # animations.wipe_right(d)
             time.sleep(1)

@@ -144,18 +144,23 @@ class DisplaySim(threading.Thread):
             time.sleep(RefreshRate)
 
     def draw(self):
-        px = self.d.im.load()
-        w, h = self.d.im.size
-        r = w*2+3
-        onoff = {True: " ●", False: " ○"}
-        stdscr.addstr(0, 1, "-"*r)
-        stdscr.addstr(h+1, 1, "-"*r)
+        if self.portrait:
+            px = self.d.im.rotate(angle=-90, expand=1).load()
+            h, w = self.d.im.size
+        else:
+            px = self.d.im.load()
+            w, h = self.d.im.size
+        # length of - to print for horizontal frame
+        r = w*2+2
+        onoff = {True: "●", False: "○"}
+        stdscr.addstr(0, 1, "-"*r, curses.color_pair(2))
+        stdscr.addstr(h+1, 1, "-"*r, curses.color_pair(2))
         for y in range(h):
-            stdscr.addstr(y+1, 0, "|")
-            stdscr.addstr(y+1, r+1, "|")
+            stdscr.addstr(y+1, 0, "|", curses.color_pair(2))
+            stdscr.addstr(y+1, r+1, "|", curses.color_pair(2))
             for x in range(w):
                 v = self.d.px_to_bit(px[x, y])
-                stdscr.addstr(y+1, 2+x*2, onoff[v])
+                stdscr.addstr(y+1, 2+x*2, onoff[v], curses.color_pair(1))
         stdscr.refresh()
 
     def refresh(self, address=None):
@@ -177,22 +182,21 @@ class DisplaySim(threading.Thread):
                 if px:
                     n.putpixel((x, y), (255, 255, 255))
         with self.l:
-            if (self.portrait):
-                n = n.rotate(angle=-90, expand=1)
-                x = ImageOps.mirror(n)
-                # n = n.tranpose(Image.FLIP_LEFT_RIGHT)
-                # self.d.im.paste(n, box=(ys, xs))
-                # sz = (ys + h, xs + w)
-                # ix, iy = self.d.size
-                self.d.im.paste(x, box=(ys, xs))
-            else:
-                self.d.im.paste(n, box=(xs, ys))
+            self.d.im.paste(n, box=(xs, ys))
 
 
 
 def init_curses():
     global stdscr
     stdscr = curses.initscr()
+    # make sure term is right size
+    curses.resize_term(args.width*2+4, args.height*2+4)
+    curses.start_color()
+    # dots
+    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    # frame
+    curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_WHITE)
+    curses.curs_set(0)
     curses.noecho()
 
 
@@ -202,7 +206,7 @@ def stop_curses():
 
 
 if __name__ == "__main__":
-    sim = DisplaySim(args.width, args.height, display.create_display((28, 7), (args.width, args.height)))
+    sim = DisplaySim(args.width, args.height, display.create_display((28, 7), (args.width, args.height)), portrait=args.portrait)
     try:
         init_curses()
         sim.start()

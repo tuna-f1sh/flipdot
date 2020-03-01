@@ -25,6 +25,7 @@ parser.add_argument('text', type=str, nargs='?', default='',
                     help='text to display')
 parser.add_argument('--demo', action='store_true',
                     help='run demo routine')
+# TODO
 parser.add_argument('--portrait', action='store_true',
                     help='panels are in portrait orientation')
 parser.add_argument('--blink', action='store_true',
@@ -38,6 +39,13 @@ args = parser.parse_args()
 
 PANEL_X = 28
 PANEL_Y = 7
+
+CLIENT_TYPE = {
+        'udp': ((args.ip, args.port), client.UDPClient),
+        'tcp': ((args.ip, args.port), client.TCPClient),
+        'rs485': (args.usb, client.SerialClient)
+}
+
 
 d = display.Display(args.width, args.height, display.create_display((PANEL_X, PANEL_Y), (args.width, args.height)))
 if args.stdout: print(d.panels)
@@ -59,12 +67,7 @@ def mainloop(d):
     d.send()
 
 def main():
-    if args.protocol == 'udp':
-        d.connect(client.UDPClient(args.ip, args.port))
-    elif args.protocol == 'tcp':
-        d.connect(client.TCPClient(args.ip, args.port))
-    elif args.protocol == 'rs485':
-        d.connect(client.SerialClient(args.usb))
+    d.connect(CLIENT_TYPE[args.protocol][1](*CLIENT_TYPE[args.protocol][0]))
     try:
         d.reset(white=True)
         while True:
