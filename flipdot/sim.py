@@ -35,7 +35,6 @@ parser.add_argument('-y','--height', type=int, default=14,
                     help='display height, should be multiple of panel height 7')
 parser.add_argument('--portrait', action='store_true',
                     help='panels are in portrait orientation so rotate tui for display')
-# TODO
 parser.add_argument('-v','--verbose', action='store_true',
                     help='enabling verbose debugging output')
 args = parser.parse_args()
@@ -43,6 +42,7 @@ args = parser.parse_args()
 RefreshRate = args.refresh
 sim = None
 stdscr = None
+debugPos = (args.width+3, 1) if args.portrait else (args.height+3, 1)
 
 class Handler(socketserver.BaseRequestHandler):
 
@@ -78,6 +78,9 @@ class Handler(socketserver.BaseRequestHandler):
     def update_display(self, data):
         address = data[2]
         body = data[3:-1]
+        if args.verbose:
+            debug = "ADR: {} DATA: {}".format(address, ' '.join('{:02X}'.format(x) for x in data))
+            stdscr.addstr(debugPos[0]+address, debugPos[1], debug, curses.color_pair(3))
         sim.update(address, body)
 
 class TCPHandler(Handler):
@@ -189,15 +192,27 @@ class DisplaySim(threading.Thread):
 def init_curses():
     global stdscr
     stdscr = curses.initscr()
-    # make sure term is right size
-    curses.resize_term(args.width*2+4, args.height*2+4)
     curses.start_color()
     # dots
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
     # frame
     curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_WHITE)
+    curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
     curses.curs_set(0)
     curses.noecho()
+
+    if args.verbose: 
+        stdscr.addstr(*debugPos, 
+            "W: {} H: {} Portrait: {} Panels: {} Panel size: {}".format(args.width, args.height, args.portrait, len(sim.d.panels), sim.d.panels[1][1]),
+            curses.color_pair(2))
+        stdscr.addstr(debugPos[0]+1, debugPos[1], "Waiting for first data packet...", curses.color_pair(3))
+    else:
+        # make sure term is right size
+        if args.portrait:
+            curses.resize_term(args.width*2+4, args.height*2+4)
+        else:
+            curses.resize_term(args.height*2+4, args.width*2+4)
+
 
 
 def stop_curses():
