@@ -10,7 +10,7 @@ pylint = "*"
 pyserial = "*"
 Pillow = "*"
 pudb = "*"
-jedi = "*"
+flipdot = {editable = true,path = "."}
 
 [requires]
 python_version = "*"

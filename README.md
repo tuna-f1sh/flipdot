@@ -18,7 +18,7 @@ The protocol to control a panel is not well-documented. Essentially each column 
 pixels (in a 7x28 board) is a controlled by a single byte, using the lower seven
 bits. The packet header includes panel address information, as well as other
 meta-data. The protocol is outlined more in the [reference
-code](https://github.com/dcreemer/flipdot/blob/master/ref/XY5_arduino.txt) from
+code](https://github.com/dcreemer/flipdot/blob/master/docs/XY5_arduino.txt) from
 Alfa-Zeta.
 
 ## Driver
@@ -33,47 +33,48 @@ computer, then try it out on a real display.
 
 ## Usage
 
-Install the required libraries with pip:
-
 ```sh
-$ make init
+# Create virtualenv and install the required libraries with pipenv:
+pipenv install
 ```
 
-(this just does `pip install -r requirements.txt`).
-       
-In one terminal window, run the display simulator:
-
 ```sh
-$ make sim
+# Run the simulator in one window
+pipenv run python flipdot/sim.py
 ```
 
-In another, run the demo application, specifying UDP as the communications mechanism:
+In another, run the demo application (defaults to same setup as simulator):
 
 ```sh
-$ make demo
+pipenv run python cli.py
+```
+
+See --help flags for more usage
+
+```sh
+pipenv run flipdot/sim.py --help
+pipenv run cli.py --help
 ```
 
 ## Samples
 
-```
-$ python sim.py
-
- -----------------------------------------------------------
-|                                                           |
-|                                                           |
-|                                                           |
-|             * *     * *   * * *       * *                 |
-|             * *     * * * *   * *     * *                 |
-|               * * * *   * *   * *     * *                 |
-|                 * *     * *   * *     * *                 |
-|                 * *     * *   * *                         |
-|               * * * *     * * *       * *                 |
-|                                                           |
-|                                                           |
-|                                                           |
-|                                                           |
-|                                                           |
- -----------------------------------------------------------
+```sh
+ ----------------------------------------------------------
+| ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ● ● ○ ○ ● ● ○ ● ● ● ○ ○ ○ ● ● ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ● ● ○ ○ ● ● ● ● ○ ● ● ○ ○ ● ● ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ○ ● ● ● ● ○ ● ● ○ ● ● ○ ○ ● ● ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ○ ○ ● ● ○ ○ ● ● ○ ● ● ○ ○ ● ● ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ○ ○ ● ● ○ ○ ● ● ○ ● ● ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ○ ● ● ● ● ○ ○ ● ● ● ○ ○ ○ ● ● ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+| ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○ ○  |
+ ----------------------------------------------------------
 ```
 
 Here is a sample video:
