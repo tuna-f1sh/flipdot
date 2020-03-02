@@ -43,7 +43,7 @@ PANEL_Y = 7
 CLIENT_TYPE = {
         'udp': ((args.ip, args.port), client.UDPClient),
         'tcp': ((args.ip, args.port), client.TCPClient),
-        'rs485': (args.usb, client.SerialClient)
+        'usb': (args.usb, client.SerialClient)
 }
 
 
@@ -67,7 +67,10 @@ def mainloop(d):
     d.send()
 
 def main():
-    d.connect(CLIENT_TYPE[args.protocol][1](*CLIENT_TYPE[args.protocol][0]))
+    if args.protocol == 'usb':
+        d.connect(CLIENT_TYPE[args.protocol][1](CLIENT_TYPE[args.protocol][0]))
+    else:
+        d.connect(CLIENT_TYPE[args.protocol][1](*CLIENT_TYPE[args.protocol][0]))
     try:
         d.reset(white=True)
         while True:

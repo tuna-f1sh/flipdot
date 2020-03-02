@@ -5,7 +5,6 @@ Imaging Library friendly fork) driver and simulator for the [Flip-Dot XY5
 Display](https://flipdots.com/en/products-services/flip-dot-boards-xy5/) from
 [AlphaZeta](https://flipdots.com/en/home/).
 
-
 ## The Flip-Dot Display
 
 The XY5 Display can be thought of as a bitmaped screen. It consists of mechanical
@@ -43,13 +42,12 @@ pipenv install
 pipenv run python flipdot/sim.py
 ```
 
-In another, run the demo application (defaults to same setup as simulator):
-
 ```sh
+# In another, run the demo application (defaults to same setup as simulator):
 pipenv run python cli.py
 ```
 
-See --help flags for more usage
+See `--help` arg for more usage
 
 ```sh
 pipenv run flipdot/sim.py --help

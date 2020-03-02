@@ -9,6 +9,7 @@ import sys
 import curses
 import threading
 import time
+import serial
 
 if sys.version_info.major == 2:
     import SocketServer as socketserver
@@ -22,13 +23,15 @@ import display
 import argparse
 
 parser = argparse.ArgumentParser(description='Run a tui Alfa-Zeta flot-dot simulation')
-parser.add_argument('-P','--protocol', type=str, choices=['tcp', 'udp'],
+parser.add_argument('-P','--protocol', type=str, choices=['tcp', 'udp', 'usb'],
                     default='udp',
                     help='communication protocol to use')
 parser.add_argument('-r','--refresh', type=float, default=0.2,
                     help='panel refresh rate in seconds')
 parser.add_argument('-p','--port', type=int, default=5000,
                     help='network port to use on localhost')
+parser.add_argument('-u','--usb', type=str, default='/dev/ttyUSB0',
+                    help='usb port of USB->RS485 device')
 parser.add_argument('-x','--width', type=int, default=28,
                     help='display width, should be multiple of panel width 28')
 parser.add_argument('-y','--height', type=int, default=14,
@@ -49,7 +52,8 @@ class Handler(socketserver.BaseRequestHandler):
     def handle(self):
         pass
 
-    def validate(self, raw):
+    @staticmethod
+    def validate(raw):
         if sys.version_info.major == 2:
             data = [ord(x) for x in raw]
         else:
@@ -75,7 +79,8 @@ class Handler(socketserver.BaseRequestHandler):
             return []
         return data
 
-    def update_display(self, data):
+    @staticmethod
+    def update_display(data):
         address = data[2]
         body = data[3:-1]
         if args.verbose:
@@ -103,6 +108,31 @@ class UDPHandler(Handler):
         if data:
             self.update_display(data)
 
+class SerialHandler():
+    def __init__(self, port):
+        self.chan = serial.Serial()
+        self.chan.baudrate = 57600
+        self.chan.port = port
+        self.chan.timeout = 10.0
+        self.thread = threading.Thread(target=self.read_from_port)
+
+    def open(self):
+        self.chan.open()
+        self.thread.start()
+
+    def close(self):
+        self.chan.close()
+
+    def read_from_port(self):
+        while self.chan.in_waiting > 0:
+           data = self.chan.read_until(expected=0x8F)
+           if data: self.handle(data)
+
+    def handle(self, data):
+        data = Handler.validate(data)
+        if data:
+            Handler.update_display(data)
+
 class ThreadedUDPServer(socketserver.ThreadingMixIn, socketserver.UDPServer):
     pass
 
@@ -111,17 +141,20 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 
 def start_server():
-    HOST, PORT = "localhost", args.port
-    if args.protocol == 'tcp':
-        server = ThreadedTCPServer((HOST, PORT), TCPHandler)
-    elif args.protocol == 'udp':
-        server = ThreadedUDPServer((HOST, PORT), UDPHandler)
+    if args.protocol != 'usb':
+        if args.protocol == 'tcp':
+            server = ThreadedTCPServer(("localhost", args.port), TCPHandler)
+        elif args.protocol == 'udp':
+            server = ThreadedUDPServer(("localhost", args.port), UDPHandler)
+        else:
+            raise ValueError('Invalid protocol')
+        server_thread = threading.Thread(target=server.serve_forever)
+        server_thread.daemon = True
+        server_thread.start()
     else:
-        raise ValueError('Invalid protocol')
-    ip, port = server.server_address
-    server_thread = threading.Thread(target=server.serve_forever)
-    server_thread.daemon = True
-    server_thread.start()
+        server = SerialHandler(args.usb)
+        server.open()
+
 
 
 class DisplaySim(threading.Thread):
@@ -141,7 +174,6 @@ class DisplaySim(threading.Thread):
     def run(self):
         while not self._stop.is_set():
             self.frames += 1
-            # print '\033c', self.frames
             with self.l:
                 self.draw()
             time.sleep(RefreshRate)
