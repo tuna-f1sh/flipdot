@@ -15,7 +15,7 @@ def create_display(panel_size: tuple, display_size: tuple):
     display_size -- (w, h) of display (should be factor of panel_size)
     """
     ret = {}
-    addr = 1
+    addr = 0
     cord = [0, 0]
 
     for x in range(0, display_size[0], panel_size[0]):
@@ -61,15 +61,14 @@ class Display(object):
         Connect a display to a client
         """
         self.client = client
-        if (self.client.kind != c.CHAN_TCP):
-            self.client.open()
+        self.client.open()
 
     def disconnect(self):
         """
         Disconnect the client from this display
         """
         if self.client:
-            if self.client.kind != c.CHAN_TCP: self.client.close()
+            self.client.close()
         self.client = None
 
     def reset(self, address=None, white=False):

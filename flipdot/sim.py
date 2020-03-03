@@ -91,14 +91,19 @@ class Handler(socketserver.BaseRequestHandler):
 class TCPHandler(Handler):
 
     def handle(self):
-        try:
-            data = self.request.recv(1024).strip()
-            data = self.validate(data)
+        """
+        handle will close socket on return so stay here waiting for recv (will
+        return 0 on break) this behavior is like the Ethernet -> RS485 boxes.
+        Socket is blocking but this is a thread so it's ok
+        """
+        while 1:
+            data = self.request.recv(1024)
             if data:
+                data = self.validate(data)
                 self.update_display(data)
-        finally:
-            self.request.close()
-            pass
+            # client closed so return and close server connection
+            else:
+                break
 
 class UDPHandler(Handler):
 
@@ -115,6 +120,7 @@ class SerialHandler():
         self.chan.port = port
         self.chan.timeout = 10.0
         self.thread = threading.Thread(target=self.read_from_port)
+        self.thread.daemon = True
 
     def open(self):
         self.chan.open()
@@ -124,9 +130,10 @@ class SerialHandler():
         self.chan.close()
 
     def read_from_port(self):
-        while self.chan.in_waiting > 0:
-           data = self.chan.read_until(expected=0x8F)
-           if data: self.handle(data)
+        while True:
+            if self.chan.in_waiting > 0:
+                data = self.chan.read_until(b"\x8F")
+                if data: self.handle(data)
 
     def handle(self, data):
         data = Handler.validate(data)

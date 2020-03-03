@@ -53,24 +53,18 @@ class TCPClient(Client):
     def __init__(self, host, port):
         self.addr = (host, port)
         self.kind = CHAN_TCP
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # socket open/closed on send as no message length/delimiter provided
     def open(self):
-        pass
+        self.sock.connect(self.addr)
+        # pass
 
     def close(self):
-        pass
+        self.sock.close()
 
     def send(self, screen_id, data, refresh=True):
         b = self.format_message(screen_id, data, refresh)
-        # create socket for packet
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect(self.addr)
-        # send all the data then close
-        try:
-            self.sock.sendall(b)
-        finally:
-            self.sock.close()
+        self.sock.send(b)
 
 class SerialClient(Client):
     def __init__(self, port):
