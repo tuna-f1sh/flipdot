@@ -69,10 +69,12 @@ def blink_text(d, text, n=3):
 
 
 def animate(disp, i, w, d=1):
-    l, h = -w, 29
+    start, end = -(i[0].size[0]), w
+    # opposite direction
     if d < 0:
-        l, h = h, l
-    for x in range(l, h, d):
+        start, end = end, start
+    # move the image across screen
+    for x in range(start, end, d):
         im = i[abs(x % len(i))]
         disp.reset()
         disp.im.paste(im, (x, 0))
@@ -96,12 +98,16 @@ def gobble(d):
     animate(d, frames3, d.im.size[0], 1)
 
 
-def dot(d):
+def dot(d, cord=None):
     draw = ImageDraw.Draw(d.im)
     w, h = d.im.size
-    mw = w/2
-    mh = h/2
-    for i in range(0, 7):
+    if cord is None:
+        mw = w/2
+        mh = h/2
+    else:
+        mw = cord[0]/2
+        mh = cord[1]/2
+    for i in range(0, w):
         d.reset()
         draw.ellipse([(mw-i, mh-i), (mw+i, mh+i)], fill=(255, 255, 255))
         d.send()
@@ -109,31 +115,35 @@ def dot(d):
     del draw
 
 
-def wipe_right(d):
+def wipe_horizontal(d, direction=1, white=False):
     w, h = d.im.size
-    d.reset(white=True)
+    d.reset(white=~white)
     d.send()
     time.sleep(0.5)
-    for x in range(1, w+1):
+    start = 1 if direction >= 0 else w
+    fill = (255,255,255) if white else (0,0,0)
+    for x in range(start, w+1, direction):
         draw = ImageDraw.Draw(d.im)
         xy = (0, 0)
         sz = (x, h)
-        draw.rectangle([xy, sz], fill=(0, 0, 0))
+        draw.rectangle([xy, sz], fill=fill)
         del draw
         d.send()
         time.sleep(0.07)
 
 
-def wipe_down(d):
+def wipe_vertical(d, direction=1, white=True):
     w, h = d.im.size
-    d.reset()
+    d.reset(white=~white)
     d.send()
     time.sleep(0.5)
-    for y in range(1, h+1):
+    start = 1 if direction >= 0 else h
+    fill = (255,255,255) if white else (0,0,0)
+    for y in range(start, h+1, direction):
         draw = ImageDraw.Draw(d.im)
         xy = (0, 0)
         sz = (w, y)
-        draw.rectangle([xy, sz], fill=(255, 255, 255))
+        draw.rectangle([xy, sz], fill=fill)
         del draw
         d.send()
         time.sleep(0.1)
@@ -157,8 +167,8 @@ transitions = [
     alien_1,
     alien_2,
     curtain,
-    wipe_right,
-    wipe_down,
+    wipe_horizontal,
+    wipe_vertical,
     gobble,
     ]
 random.shuffle(transitions)

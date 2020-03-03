@@ -97,13 +97,18 @@ class TCPHandler(Handler):
         Socket is blocking but this is a thread so it's ok
         """
         while 1:
-            data = self.request.recv(1024)
-            if data:
+            data = bytearray()
+            chunk = None
+            # unload until we get the end of frame char (or client disconnect)
+            while chunk != b"\x8F":
+                chunk = self.request.recv(1)
+                # client closed so return and close server connection
+                if chunk == "":
+                    break
+                data.extend(chunk)
+            if len(data) > 0:
                 data = self.validate(data)
                 self.update_display(data)
-            # client closed so return and close server connection
-            else:
-                break
 
 class UDPHandler(Handler):
 
@@ -242,7 +247,8 @@ def init_curses():
 
     if args.verbose: 
         stdscr.addstr(*debugPos, 
-            "W: {} H: {} Portrait: {} Panels: {} Panel size: {}".format(args.width, args.height, args.portrait, len(sim.d.panels), sim.d.panels[1][1]),
+            "W: {} H: {} Portrait: {} Panels: {} Panel size: {} Port: {}".format(args.width, args.height, args.portrait,
+            len(sim.d.panels), sim.d.panels[1][1], args.port),
             curses.color_pair(2))
         stdscr.addstr(debugPos[0]+1, debugPos[1], "Waiting for first data packet...", curses.color_pair(3))
     else:
