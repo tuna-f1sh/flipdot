@@ -12,6 +12,7 @@ pyserial = "*"
 Pillow = "*"
 pudb = "*"
 flipdot = {editable = true,path = "."}
+pil = "*"
 
 [requires]
 python_version = "*"

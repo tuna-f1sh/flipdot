@@ -216,20 +216,21 @@ class DisplaySim(threading.Thread):
 
     def update(self, address, data):
         # update the internal image from the given list of bytes
-        (xs, ys), (w, h) = self.d.panels[address]
-        n = Image.new("RGB", (w, h))
-        if h != 7:
-            print("H is not 7!!!")
-        for x in range(w):
-            # get the next byte
-            b = data[x]
-            for y in range(h):  # note that h should always be 7
-                px = b & 0x01
-                b = b >> 1
-                if px:
-                    n.putpixel((x, y), (255, 255, 255))
-        with self.l:
-            self.d.im.paste(n, box=(xs, ys))
+        if address in self.d.panels.keys():
+            (xs, ys), (w, h) = self.d.panels[address]
+            n = Image.new("RGB", (w, h))
+            if h != 7:
+                print("H is not 7!!!")
+            for x in range(w):
+                # get the next byte
+                b = data[x]
+                for y in range(h):  # note that h should always be 7
+                    px = b & 0x01
+                    b = b >> 1
+                    if px:
+                        n.putpixel((x, y), (255, 255, 255))
+            with self.l:
+                self.d.im.paste(n, box=(xs, ys))
 
 
 
