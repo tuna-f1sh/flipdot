@@ -30,7 +30,7 @@ SmallFont = None
 def scroll_text(d, text, font=BigFont, xy=(0,0), rotate=False):
     draw = ImageDraw.Draw(d.im)
     tw, _ = draw.textsize(text, font=font)
-    for x in range(xy[0], 0-tw, -1):
+    for x in range(xy[0], 0-tw-1, -1):
         if rotate: d.im = d.im.rotate(angle=90, expand=1)
         draw = ImageDraw.Draw(d.im)
         d.reset()

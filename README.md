@@ -44,14 +44,14 @@ pipenv run python flipdot/sim.py
 
 ```sh
 # In another, run the demo application (defaults to same setup as simulator):
-pipenv run python cli.py
+pipenv run python flipdot
 ```
 
 See `--help` arg for more usage
 
 ```sh
 pipenv run flipdot/sim.py --help
-pipenv run cli.py --help
+pipenv run python flipdot --help
 ```
 
 ## Samples

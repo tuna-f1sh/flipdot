@@ -43,6 +43,7 @@ parser.add_argument('-v','--verbose', action='store_true',
 args = parser.parse_args()
 
 RefreshRate = args.refresh
+NetworkLatency = 0.01
 sim = None
 stdscr = None
 debugPos = (args.width+3, 1) if args.portrait else (args.height+3, 1)
@@ -99,16 +100,18 @@ class TCPHandler(Handler):
         while 1:
             data = bytearray()
             chunk = None
+            self.request.settimeout(5)
             # unload until we get the end of frame char (or client disconnect)
             while chunk != b"\x8F":
                 chunk = self.request.recv(1)
                 # client closed so return and close server connection
-                if chunk == "":
-                    break
+                if chunk == b"":
+                    return
                 data.extend(chunk)
             if len(data) > 0:
                 data = self.validate(data)
                 self.update_display(data)
+            time.sleep(NetworkLatency)
 
 class UDPHandler(Handler):
 

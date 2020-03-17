@@ -6,13 +6,12 @@ verify_ssl = true
 [dev-packages]
 pylint = "*"
 jedi = "*"
+pudb = "*"
 
 [packages]
 pyserial = "*"
 Pillow = "*"
-pudb = "*"
 flipdot = {editable = true,path = "."}
-pil = "*"
 
 [requires]
 python_version = "*"

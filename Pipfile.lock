@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "29912181cc3e59d566cc711be61ca15f351290c3fdd85feeaf04be96f0db49d2"
+            "sha256": "6029ac8e6ebff8aa02d998b6415b35e2db2e8efd0040ea39190a8c5928d7f937"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -48,20 +48,6 @@
             "index": "pypi",
             "version": "==7.0.0"
         },
-        "pudb": {
-            "hashes": [
-                "sha256:e8f0ea01b134d802872184b05bffc82af29a1eb2f9374a277434b932d68f58dc"
-            ],
-            "index": "pypi",
-            "version": "==2019.2"
-        },
-        "pygments": {
-            "hashes": [
-                "sha256:2a3fe295e54a20164a9df49c75fa58526d3be48e14aceba6d6b1e8ac0bfd6f1b",
-                "sha256:98c8aa5a9f778fcd1026a17361ddaf7330d1b7c62ae97c3bb0ae73e0b9b6b0fe"
-            ],
-            "version": "==2.5.2"
-        },
         "pyserial": {
             "hashes": [
                 "sha256:6e2d401fdee0eab996cf734e67773a0143b932772ca8b42451440cfed942c627",
@@ -69,12 +55,6 @@
             ],
             "index": "pypi",
             "version": "==3.4"
-        },
-        "urwid": {
-            "hashes": [
-                "sha256:0896f36060beb6bf3801cb554303fef336a79661401797551ba106d23ab4cd86"
-            ],
-            "version": "==2.1.0"
         }
     },
     "develop": {
@@ -140,6 +120,20 @@
             ],
             "version": "==0.6.2"
         },
+        "pudb": {
+            "hashes": [
+                "sha256:e8f0ea01b134d802872184b05bffc82af29a1eb2f9374a277434b932d68f58dc"
+            ],
+            "index": "pypi",
+            "version": "==2019.2"
+        },
+        "pygments": {
+            "hashes": [
+                "sha256:647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44",
+                "sha256:ff7a40b4860b727ab48fad6360eb351cc1b33cbf9b15a0f689ca5353e9463324"
+            ],
+            "version": "==2.6.1"
+        },
         "pylint": {
             "hashes": [
                 "sha256:3db5468ad013380e987410a8d6956226963aed94ecb5f9d3a28acca6d9ac36cd",
@@ -154,6 +148,12 @@
                 "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"
             ],
             "version": "==1.14.0"
+        },
+        "urwid": {
+            "hashes": [
+                "sha256:0896f36060beb6bf3801cb554303fef336a79661401797551ba106d23ab4cd86"
+            ],
+            "version": "==2.1.0"
         },
         "wrapt": {
             "hashes": [

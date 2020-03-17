@@ -193,4 +193,3 @@ class MultiDisplay(object):
         c = (255,255,255) if white else (0, 0, 0)
         draw.rectangle([xy, sz], fill=c)
         del draw
-

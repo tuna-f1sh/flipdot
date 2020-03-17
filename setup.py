@@ -10,12 +10,16 @@ with open('LICENSE') as f:
 
 setup(
     name='flipdot',
-    version='0.1.0',
+    version='0.2.0',
     description='Driver and Simulator for Alfa-Zeta Flip-Dot',
     long_description=readme,
-    author='D Creemer',
-    author_email='dcreemer@zachary.com',
-    url='https://github.com/dcreemer/flipdot',
+    author='J Whittington',
+    author_email='git@jbrengineering.co.uk',
+    url='https://github.com/tuna-f1sh/flipdot',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=find_packages(exclude=('tests', 'docs')),
+    install_requires=[
+        'Pillow',
+        'pyserial',
+    ],
 )
