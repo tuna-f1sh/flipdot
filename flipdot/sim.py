@@ -100,7 +100,6 @@ class TCPHandler(Handler):
         while 1:
             data = bytearray()
             chunk = None
-            self.request.settimeout(5)
             # unload until we get the end of frame char (or client disconnect)
             while chunk != b"\x8F":
                 chunk = self.request.recv(1)
@@ -179,15 +178,15 @@ class DisplaySim(threading.Thread):
         self.d = display.Display(w, h, panels)
         self.l = threading.RLock()
         self.frames = 0
-        self._stop = threading.Event()
+        self.stopper = threading.Event()
         self.portrait = portrait
 
     def stop(self):
-        self._stop.set()
+        self.stopper.set()
         self.join()
 
     def run(self):
-        while not self._stop.is_set():
+        while not self.stopper.is_set():
             self.frames += 1
             with self.l:
                 self.draw()
