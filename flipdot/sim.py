@@ -26,7 +26,7 @@ parser = argparse.ArgumentParser(description='Run a tui Alfa-Zeta flot-dot simul
 parser.add_argument('-P','--protocol', type=str, choices=['tcp', 'udp', 'usb'],
                     default='udp',
                     help='communication protocol to use')
-parser.add_argument('-r','--refresh', type=float, default=0.2,
+parser.add_argument('-r','--refresh', type=float, default=0.06,
                     help='panel refresh rate in seconds')
 parser.add_argument('-p','--port', type=int, default=5000,
                     help='network port to use on localhost')
@@ -43,7 +43,6 @@ parser.add_argument('-v','--verbose', action='store_true',
 args = parser.parse_args()
 
 RefreshRate = args.refresh
-NetworkLatency = 0.01
 sim = None
 stdscr = None
 debugPos = (args.width+3, 1) if args.portrait else (args.height+3, 1)
@@ -110,7 +109,6 @@ class TCPHandler(Handler):
             if len(data) > 0:
                 data = self.validate(data)
                 self.update_display(data)
-            time.sleep(NetworkLatency)
 
 class UDPHandler(Handler):
 
