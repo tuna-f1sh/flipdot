@@ -157,7 +157,7 @@ class MultiDisplay(object):
         """
         for _, disp in self.displays.values(): disp.disconnect()
 
-    def send(self, refresh=True):
+    def send(self, refresh=False):
         """
         Divide the current image up and send to each display
         """
@@ -180,7 +180,7 @@ class MultiDisplay(object):
             portion = self.im.crop(box=(xy[0], xy[1], sz[0], sz[1]))
             if self.portrait: portion = portion.rotate(angle=90, expand=1)
             disp.im.paste(portion)
-            disp.send(refresh)
+            disp.send(refresh=refresh)
             del portion
 
     def reset(self, display=None, white=False):
