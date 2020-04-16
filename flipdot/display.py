@@ -157,7 +157,7 @@ class MultiDisplay(object):
         """
         for _, disp in self.displays.values(): disp.disconnect()
 
-    def send(self, refresh=False):
+    def send(self, refresh=True):
         """
         Divide the current image up and send to each display
         """
